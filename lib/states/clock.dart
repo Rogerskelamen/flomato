@@ -78,6 +78,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
                       width: 180.0,
                       height: 180.0,
                       child: CircularProgressIndicator(
+                        color: Colors.lightGreen,
                         strokeWidth: 10.0,
                         // 用现在的时间和最开始传过来的时间相比
                         value: _time.inSeconds / widget.time.inSeconds,
@@ -99,7 +100,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
                 shadows: [
                   Shadow(
                     offset: Offset(2.0, 2.0),
-                    blurRadius: 8.0,
+                    blurRadius: 12.0,
                     color: Color.fromARGB(255, 120, 120, 120),
                   )
                 ],
@@ -107,6 +108,9 @@ class _ClockDisplayState extends State<ClockDisplay> {
             ),
 
             // 下面三个按钮
+            Container(
+
+            )
           ],
         ),
       ),

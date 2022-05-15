@@ -13,10 +13,6 @@ class MyApp extends StatelessWidget {
       title: 'flomato',
       darkTheme: ThemeData.dark(),
       theme: ThemeData(primarySwatch: Colors.deepOrange),
-      // routes: {
-      //   "/":(context) => const MyHomePage(title: 'Flomato🍅'),
-      //   "zen_page":(context) => const ZenPage()
-      // },
       home: const ScaffoldPage(title: 'Flomato🍅'),
     );
   }

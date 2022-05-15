@@ -1,9 +1,10 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import './clock.dart';
-import '../utils/time_handle.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -90,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
+            // ignore: use_full_hex_values_for_flutter_colors
             color: Theme.of(context).colorScheme.secondary.computeLuminance() > 0.5 ? Color(0x1b1b1b) : Color(0xaaaaaaaa),
             offset: const Offset(0, 5.0),
             blurRadius: 8.0
@@ -97,13 +99,17 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         ]
       ),
       child: ListTile(
-        title: Text('$index', style: TextStyle(fontSize: 20.0),),
+        title: Text('$index', style: const TextStyle(fontSize: 20.0),),
       ),
     );
   }
 
   // 添加一个番茄时间任务
   _addNewTask() {
+    // 重新清空变量
+    _taskName = '';
+    _time = const Duration(minutes: 25);
+
     showCupertinoModalPopup(
       // 取消点击任意键之后可以退出
       barrierDismissible: false,
@@ -135,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                       child: const Text('确定', style: TextStyle(color: Colors.amberAccent),),
                       onPressed: () {
                         // ignore: unnecessary_null_comparison
-                        if (_taskName.isEmpty) {
+                        if (_taskName.isEmpty || _time == const Duration(seconds: 0)) {
                           // 如果为空直接返回，不让跳转
                           return;
                         }
@@ -195,18 +201,13 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                 height: 300.0,
                 child: CupertinoTheme(
                   data: const CupertinoThemeData(
-                    textTheme: CupertinoTextThemeData(
-                      dateTimePickerTextStyle: TextStyle(
-                        fontSize: 30.0,
-                      ),
-                    ),
+                    textTheme: CupertinoTextThemeData(),
                   ),
-                  child: CupertinoDatePicker(
-                    mode: CupertinoDatePickerMode.time,
-                    use24hFormat: true,
-                    initialDateTime: getTodayBegin().add(const Duration(minutes: 25)),
-                    onDateTimeChanged: (value) {
-                      _time = value.difference(getTodayBegin());
+                  child: CupertinoTimerPicker(
+                    mode: CupertinoTimerPickerMode.hm,
+                    initialTimerDuration: const Duration(minutes: 25),
+                    onTimerDurationChanged: (value) {
+                      _time = value;
                     },
                   ),
                 )
