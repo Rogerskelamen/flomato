@@ -5,3 +5,9 @@ DateTime getTodayBegin() {
     DateTime.now().day
   );
 }
+
+String displayDuration(Duration time) {
+  return (time.inHours % 24).toString() + ' : '
+         + (time.inMinutes % 60).toString() + ' : '
+         + (time.inSeconds % 60).toString();
+}
