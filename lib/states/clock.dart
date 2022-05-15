@@ -27,7 +27,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
     super.initState();
     // 初始化变量
     _time = widget.time;
-    _ticker = const Duration(milliseconds: 100);
+    _ticker = const Duration(seconds: 1);
 
     // 页面一旦初始化就开始计时
     Timer.periodic(_ticker, (timer) {
@@ -92,7 +92,21 @@ class _ClockDisplayState extends State<ClockDisplay> {
             ),
 
             // 正式倒计时时钟
-            Text(displayDuration(_time), style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w300),)
+            Text(displayDuration(_time), style:
+              const TextStyle(
+                fontSize: 46,
+                fontWeight: FontWeight.w300,
+                shadows: [
+                  Shadow(
+                    offset: Offset(2.0, 2.0),
+                    blurRadius: 8.0,
+                    color: Color.fromARGB(255, 120, 120, 120),
+                  )
+                ],
+              ),
+            ),
+
+            // 下面三个按钮
           ],
         ),
       ),

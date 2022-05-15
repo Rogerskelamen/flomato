@@ -7,7 +7,12 @@ DateTime getTodayBegin() {
 }
 
 String displayDuration(Duration time) {
-  return (time.inHours % 24).toString() + ' : '
-         + (time.inMinutes % 60).toString() + ' : '
+  if (time.inHours % 24 == 0) {
+    return (time.inMinutes % 60).toString() + ' : '
          + (time.inSeconds % 60).toString();
+  } else {
+    return (time.inHours % 24).toString() + ' : '
+          + (time.inMinutes % 60).toString() + ' : '
+          + (time.inSeconds % 60).toString();
+  }
 }
