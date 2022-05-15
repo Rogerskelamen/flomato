@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'states/zen.dart';
 import 'states/home.dart';
-import 'routes/routes.dart';
 
 void main() => runApp(const MyApp());
 
@@ -15,10 +13,10 @@ class MyApp extends StatelessWidget {
       title: 'flomato',
       darkTheme: ThemeData.dark(),
       theme: ThemeData(primarySwatch: Colors.deepOrange),
-      routes: {
-        // "/":(context) => const MyHomePage(title: 'Flomato🍅'),
-        "zen_page":(context) => const ZenPage()
-      },
+      // routes: {
+      //   "/":(context) => const MyHomePage(title: 'Flomato🍅'),
+      //   "zen_page":(context) => const ZenPage()
+      // },
       home: const ScaffoldPage(title: 'Flomato🍅'),
     );
   }
@@ -87,6 +85,7 @@ class _ScaffoldPageState extends State<ScaffoldPage> {
         itemCount: _bodyList.length,
         itemBuilder: (context, index) => _bodyList[index],
       ),
+      // 底部导航栏
       bottomNavigationBar: BottomNavigationBar(
         items: _bottomItems,
         currentIndex: _selectedIndex,
