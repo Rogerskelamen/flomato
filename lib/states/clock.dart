@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../utils/time_handle.dart';
+import 'package:just_audio/just_audio.dart';
 
 // ignore: must_be_immutable
 class ClockDisplay extends StatefulWidget {
@@ -19,15 +20,27 @@ class _ClockDisplayState extends State<ClockDisplay> {
   late Duration _time;
   // 定义一个时间片
   late Duration _ticker;
-
+  // 是否结束的标志
   bool _isEndCicle = false;
+
+  // 音频播放器
+  final _player = AudioPlayer();
+
+
+  _playAlarm() async {
+    // 设置闹铃铃声音频
+    await _player.setAsset('audio/iphone_alarm.mp3');
+    await _player.setLoopMode(LoopMode.one); // 设置循环播放闹铃
+    _player.play();
+  }
 
   @override
   void initState() {
     super.initState();
+
     // 初始化变量
     _time = widget.time;
-    _ticker = const Duration(seconds: 1);
+    _ticker = const Duration(milliseconds: 100);
 
     // 页面一旦初始化就开始计时
     Timer.periodic(_ticker, (timer) {
@@ -38,13 +51,23 @@ class _ClockDisplayState extends State<ClockDisplay> {
       // 如果倒计时结束
       if(_time == const Duration(seconds: 0)) {
         setState(() {
+          // 设置关闭倒计时的状态
           _isEndCicle = true;
         });
+        // 播放闹铃
+        _playAlarm();
 
         // 结束计时器
         timer.cancel();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _player.stop();
+    _player.dispose();
   }
 
   @override
@@ -65,7 +88,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
 
             // 番茄时钟图片和动画
             Container(
-              margin: const EdgeInsets.only(top: 50.0, bottom: 20.0),
+              margin: const EdgeInsets.only(top: 60.0, bottom: 50.0),
               height: 200,
               width: 400,
               // color: Colors.pink,
@@ -109,11 +132,56 @@ class _ClockDisplayState extends State<ClockDisplay> {
 
             // 下面三个按钮
             Container(
-
+              margin: const EdgeInsets.only(top: 30),
+              // color: Colors.pink,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _resetOrStop,
+                    icon: _isEndCicle ? const Icon(Icons.stop_circle, size: 30.0,)
+                                      : const Icon(Icons.refresh, size: 30.0,)
+                  ),
+                  IconButton(
+                    onPressed: _star(),
+                    icon: const Icon(Icons.favorite_border, size: 30.0,),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10.0),
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text(
+                        'Back',
+                      ),
+                      style: ElevatedButton.styleFrom(primary: Colors.blue),
+                    ),
+                  )
+                ],
+              ),
             )
           ],
         ),
       ),
     );
   }
+
+  // 重置按钮或者是停止按钮
+  _resetOrStop() async {
+    if (_isEndCicle) {
+      await _player.stop();
+    }else {
+      setState(() {
+        _time = widget.time;
+      });
+    }
+  }
+
+  // 添加时钟收藏
+  _star() {
+
+  }
+
+  // IconButton _getIconBtn() {
+  //   return IconButton(on, icon: icon)
+  // }
 }

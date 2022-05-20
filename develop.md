@@ -26,7 +26,7 @@
 
     第一个元素是一个番茄图片外圈包围着一个progressCicle，接下一个元素就是时钟倒计时，字体设置阴影。
 
-    最后三个按钮：一个用来重置（Reset），button样式采用ElevatedButton（圆角矩形）；一个用来返回（Back），button样式采用ElevatedButton（圆角矩形）；最后一个按钮用来设置收藏，使用IconButton（爱心），来收藏
+    最后三个按钮：一个用来重置（Reset），button样式采用IconButton（圆角矩形），如果播放完成，变成终止按钮（stop）；一个按钮用来设置收藏，使用IconButton（爱心），来收藏；最后一个用来返回（Back），button样式采用ElevatedButton（圆角矩形）
 
 ## 禅模式
 
