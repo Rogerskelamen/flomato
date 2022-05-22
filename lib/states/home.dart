@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
     _loadList();
   }
 
+  // 加载数据
   _loadList() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> taskList = prefs.getStringList('taskList') ?? [];
@@ -63,6 +64,26 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         );
       }
     });
+  }
+
+  // 删除指定数据
+  _deleteData(int index) async {
+    setState(() {
+      _clockList.removeAt(index);
+    });
+
+    // 重新写入数据
+    final prefs = await SharedPreferences.getInstance();
+
+    List<String> taskList = [];
+    List<String> lastList = [];
+    for (var clock in _clockList) {
+      taskList.add(clock.task);
+      lastList.add(clock.last.inMinutes.toString());
+    }
+
+    prefs.setStringList('taskList', taskList);
+    prefs.setStringList('lastList', lastList);
   }
 
   @override
@@ -102,6 +123,16 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         ]
       ),
       child: ListTile(
+        // 点击直接跳转计时
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ClockDisplay(
+              time: _clockList[index].last,
+              taskName: _clockList[index].task,
+              isPrefer: true,
+            )
+          )
+        ),
         leading: const Icon(Icons.alarm, size: 40,),
         title: Text(
           _clockList[index].task,
@@ -113,16 +144,41 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
         ),
         trailing: IconButton(
           icon: const Icon(Icons.delete, color: Colors.red, size: 30.0,),
-          onPressed: _deleteClock(index),
+          onPressed: () {
+            showCupertinoModalPopup<void>(
+              context: context,
+              // 设置背景模糊
+              filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+              builder: (BuildContext context) => CupertinoAlertDialog(
+                title: const Text('提示'),
+                content: const Text('你确认要删除这个专注时钟?', style: TextStyle(fontSize: 14.0),),
+                actions: <CupertinoDialogAction>[
+                  // 取消按钮
+                  CupertinoDialogAction(
+                    isDefaultAction: true,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('取消'),
+                  ),
+                  // 确认按钮
+                  CupertinoDialogAction(
+                    isDestructiveAction: true,
+                    onPressed: () {
+                      _deleteData(index);
+                      Navigator.pop(context);
+                    },
+                    child: const Text('确认'),
+                  )
+                ],
+              ),
+            );
+          },
         ),
       )
     );
   }
 
-  // 删除一个时钟
-  _deleteClock(int index) {
-    
-  }
 
   // 添加一个番茄时间任务
   _addNewTask() {
@@ -169,7 +225,11 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                         // 跳到另一个页面进行时间显示
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ClockDisplay(time: _time, taskName: _taskName, isPrefer: false,)
-                        ));
+                        )).then((clockInfo) {
+                          setState(() {
+                            _clockList.add(clockInfo);
+                          });
+                        });
                       }
                     ),
                   )
@@ -220,4 +280,5 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
       },
     );
   }
+
 }

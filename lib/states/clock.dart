@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/time_handle.dart';
 
+// 实体类
+import '../entity/clock_info.dart';
+
 // 第三方库
 import 'package:just_audio/just_audio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -160,7 +163,9 @@ class _ClockDisplayState extends State<ClockDisplay> {
                   Container(
                     margin: const EdgeInsets.only(left: 10.0),
                     child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(context).pop(
+                        ClockInfo(last: widget.time, task: widget.taskName)
+                      ),
                       child: const Text('Back'),
                       style: ElevatedButton.styleFrom(primary: Colors.blue),
                     ),
