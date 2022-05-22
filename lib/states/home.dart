@@ -226,9 +226,12 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                         Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => ClockDisplay(time: _time, taskName: _taskName, isPrefer: false,)
                         )).then((clockInfo) {
-                          setState(() {
-                            _clockList.add(clockInfo);
-                          });
+                          // 如果没有传入任何时钟，不加到时钟列表上去
+                          if (clockInfo != null) {
+                            setState(() {
+                              _clockList.add(clockInfo);
+                            });
+                          }
                         });
                       }
                     ),

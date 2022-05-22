@@ -163,9 +163,16 @@ class _ClockDisplayState extends State<ClockDisplay> {
                   Container(
                     margin: const EdgeInsets.only(left: 10.0),
                     child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(
-                        ClockInfo(last: widget.time, task: widget.taskName)
-                      ),
+                      onPressed: () {
+                        // 如果有star，就可以传入参数
+                        if (_isStarred) {
+                          Navigator.of(context).pop(
+                            ClockInfo(last: widget.time, task: widget.taskName)
+                          );
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
                       child: const Text('Back'),
                       style: ElevatedButton.styleFrom(primary: Colors.blue),
                     ),
