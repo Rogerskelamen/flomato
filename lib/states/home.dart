@@ -1,10 +1,20 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'dart:ui';
 
+// 主题库
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+
+// 另一个state
 import './clock.dart';
+
+// 引入实体类
+import '../entity/clock_info.dart';
+
+// 工具类
+import '../utils/time_handle.dart';
+
+// 第三方库
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -18,13 +28,41 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
   @override
   bool get wantKeepAlive => true;
 
+  // 弹出框显示的时间和任务名称
   late Duration _time;
   late String _taskName;
+
+  // 收集所有的任务和时间
+  List<ClockInfo> _clockList = [];
 
   @override
   void initState() {
     super.initState();
+
+    // 初始化变量
     _time = const Duration(minutes: 25);
+    // 载入持久化数据
+    _loadList();
+  }
+
+  _loadList() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> taskList = prefs.getStringList('taskList') ?? [];
+    List<String> lastList = prefs.getStringList('lastList') ?? [];
+    setState(() {
+      // 直接置空，强制初始化
+      _clockList = [];
+
+      for (var i = 0; i < taskList.length; i++) {
+        // 每次添加一个ClockInfo实例
+        _clockList.add(
+          ClockInfo(
+            last: Duration(minutes: int.parse(lastList[i])),
+            task: taskList[i]
+          )
+        );
+      }
+    });
   }
 
   @override
@@ -32,46 +70,10 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
     super.build(context);
     return Scaffold(
       body: Center(
-        // child: CustomScrollView(
-        //   slivers: [
-        //     SliverFixedExtentList(
-        //       itemExtent: 50.0,
-        // child: Column(
-
-        // )
-        // child :Container(
-        //   margin: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 0.0),
-        //   padding: const EdgeInsets.fromLTRB(15.0, 0, 15.0, 0),
-        //   decoration: const BoxDecoration(
-        //     borderRadius: BorderRadius.all(Radius.circular(10.0)),
-        //     color: Colors.white,
-        //     boxShadow: [
-        //       BoxShadow(
-        //         color: Color(0xaaaaaaaa),
-        //         offset: Offset(0.0, 5.0),
-        //         blurRadius: 8.0,
-        //         spreadRadius: 3.0,
-        //       )
-        //     ]
-        //   ),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       const Text('首页', style: TextStyle(fontSize: 20),),
-        //       OutlinedButton(
-        //         child: const Text(
-        //           '+ Enable'
-        //         ),
-        //         onPressed: (){},
-        //       )
-        //     ],
-        //   ),
-        // ),
         // 收藏的时钟列表
         child: ListView.builder(
-          itemCount: 10,
-          itemExtent: 120.0,
-          shrinkWrap: true,
+          itemCount: _clockList.length,
+          itemExtent: 110.0,
           itemBuilder: (context, index) => _createTile(context, index)
         ),
       ),
@@ -86,22 +88,40 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
   _createTile(BuildContext context, int index) {
     return Container(
       margin: const EdgeInsets.all(10),
+      padding: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.secondary.computeLuminance() < 0.5 ? Colors.white : Colors.black38,
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             // ignore: use_full_hex_values_for_flutter_colors
-            color: Theme.of(context).colorScheme.secondary.computeLuminance() > 0.5 ? Color(0x1b1b1b) : Color(0xaaaaaaaa),
+            color: Theme.of(context).colorScheme.secondary.computeLuminance() > 0.5 ? const Color(0x1b1b1b) : const Color(0xaaaaaaaa),
             offset: const Offset(0, 5.0),
             blurRadius: 8.0
           )
         ]
       ),
       child: ListTile(
-        title: Text('$index', style: const TextStyle(fontSize: 20.0),),
-      ),
+        leading: const Icon(Icons.alarm, size: 40,),
+        title: Text(
+          _clockList[index].task,
+          style: const TextStyle(fontSize: 24.0,),
+        ),
+        subtitle: Text(
+          '持续专注: ' + displayLast(_clockList[index].last),
+          style: const TextStyle(fontSize: 16.0),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete, color: Colors.red, size: 30.0,),
+          onPressed: _deleteClock(index),
+        ),
+      )
     );
+  }
+
+  // 删除一个时钟
+  _deleteClock(int index) {
+    
   }
 
   // 添加一个番茄时间任务
@@ -148,26 +168,8 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                         Navigator.of(context).pop();
                         // 跳到另一个页面进行时间显示
                         Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => ClockDisplay(time: _time, taskName: _taskName)
+                          builder: (context) => ClockDisplay(time: _time, taskName: _taskName, isPrefer: false,)
                         ));
-                        // setState(() {
-                          // 遍历所有待办查找那个待办正好在当前待办时间的后面
-                        //   for (var i = 0; i < _todos.length; i++) {
-                        //     if (_todos[i].date.isAfter(_time)) {
-                        //       _todos.insert(i,
-                        //         TodoList(
-                        //           itemName: _itemName,
-                        //           date: _time,
-                        //           isChecked: false
-                        //         )
-                        //       );
-                        //       // 插入之后直接return退出
-                        //       return;
-                        //     }
-                        //   }
-                        //   // 如果还没有退出，说明当前的待办时间是最后的，直接加上
-                        //   _todos.add(TodoList(itemName: _itemName, date: _time, isChecked: false));
-                        // });
                       }
                     ),
                   )

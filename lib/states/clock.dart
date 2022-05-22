@@ -2,14 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import '../utils/time_handle.dart';
+
+// 第三方库
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: must_be_immutable
 class ClockDisplay extends StatefulWidget {
   Duration time;
   String taskName;
+  bool isPrefer;
 
-  ClockDisplay({Key? key, required this.time, required this.taskName}) : super(key: key);
+  ClockDisplay({Key? key, required this.time, required this.taskName, required this.isPrefer}) : super(key: key);
 
   @override
   State<ClockDisplay> createState() => _ClockDisplayState();
@@ -20,8 +24,12 @@ class _ClockDisplayState extends State<ClockDisplay> {
   late Duration _time;
   // 定义一个时间片
   late Duration _ticker;
+  // 定义定时器
+  late Timer _timer;
   // 是否结束的标志
   bool _isEndCicle = false;
+  // 是否收藏当前时钟
+  late bool _isStarred;
 
   // 音频播放器
   final _player = AudioPlayer();
@@ -40,10 +48,12 @@ class _ClockDisplayState extends State<ClockDisplay> {
 
     // 初始化变量
     _time = widget.time;
-    _ticker = const Duration(milliseconds: 100);
+    _ticker = const Duration(milliseconds: 1000);
+    // 判断是否直接是从首页进来的
+    _isStarred = widget.isPrefer;
 
     // 页面一旦初始化就开始计时
-    Timer.periodic(_ticker, (timer) {
+    _timer = Timer.periodic(_ticker, (timer) {
       setState(() {
         _time -= const Duration(seconds: 1);
       });
@@ -65,6 +75,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
 
   @override
   void dispose() {
+    _timer.cancel();
     super.dispose();
     _player.stop();
     _player.dispose();
@@ -91,7 +102,6 @@ class _ClockDisplayState extends State<ClockDisplay> {
               margin: const EdgeInsets.only(top: 60.0, bottom: 50.0),
               height: 200,
               width: 400,
-              // color: Colors.pink,
               child: Stack(
                 children: [
                   Positioned(
@@ -143,16 +153,15 @@ class _ClockDisplayState extends State<ClockDisplay> {
                                       : const Icon(Icons.refresh, size: 30.0,)
                   ),
                   IconButton(
-                    onPressed: _star(),
-                    icon: const Icon(Icons.favorite_border, size: 30.0,),
+                    onPressed: _star,
+                    icon: _isStarred ? const Icon(Icons.favorite, size: 30.0, color: Colors.redAccent,)
+                                     : const Icon(Icons.favorite_border, size: 30.0, color: Colors.redAccent,)
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 10.0),
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text(
-                        'Back',
-                      ),
+                      child: const Text('Back'),
                       style: ElevatedButton.styleFrom(primary: Colors.blue),
                     ),
                   )
@@ -177,11 +186,29 @@ class _ClockDisplayState extends State<ClockDisplay> {
   }
 
   // 添加时钟收藏
-  _star() {
+  _star() async {
+    // 如果从首页进来就不允许使用收藏功能
+    if (widget.isPrefer) return;
 
+    setState(() {
+      _isStarred = !_isStarred;
+    });
+
+    // 数据持久化
+    final prefs = await SharedPreferences.getInstance();
+    // 可能最开始这个数据里面是空，所以直接重新构造
+    List<String> taskList = prefs.getStringList('taskList') ?? [];
+    List<String> lastList = prefs.getStringList('lastList') ?? [];
+    // 情况讨论
+    if (_isStarred) {
+      taskList.add(widget.taskName);
+      lastList.add(widget.time.inMinutes.toString());
+    } else {
+      taskList.removeLast();
+      lastList.removeLast();
+    }
+    prefs.setStringList('taskList', taskList);
+    prefs.setStringList('lastList', lastList);
   }
 
-  // IconButton _getIconBtn() {
-  //   return IconButton(on, icon: icon)
-  // }
 }
