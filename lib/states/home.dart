@@ -101,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
       floatingActionButton: FloatingActionButton(
         onPressed: _addNewTask,
         child: const Icon(Icons.add),
+        heroTag: 'home_btn',
       ),
     );
   }
@@ -165,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> with AutomaticKeepAliveClientMi
                   CupertinoDialogAction(
                     isDestructiveAction: true,
                     onPressed: () {
+                      // 先删除数据
                       _deleteData(index);
                       Navigator.pop(context);
                     },
