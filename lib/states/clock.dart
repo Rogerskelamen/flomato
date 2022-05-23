@@ -22,7 +22,7 @@ class ClockDisplay extends StatefulWidget {
   State<ClockDisplay> createState() => _ClockDisplayState();
 }
 
-class _ClockDisplayState extends State<ClockDisplay> {
+class _ClockDisplayState extends State<ClockDisplay> with WidgetsBindingObserver {
   // 接受传过来的持续时间
   late Duration _time;
   // 定义一个时间片
@@ -48,6 +48,7 @@ class _ClockDisplayState extends State<ClockDisplay> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
 
     // 初始化变量
@@ -57,6 +58,10 @@ class _ClockDisplayState extends State<ClockDisplay> {
     _isStarred = widget.isPrefer;
 
     // 页面一旦初始化就开始计时
+    _clockBegin();
+  }
+
+  _clockBegin() {
     _timer = Timer.periodic(_ticker, (timer) {
       setState(() {
         _time -= const Duration(seconds: 1);
@@ -82,7 +87,29 @@ class _ClockDisplayState extends State<ClockDisplay> {
     _timer.cancel();
     _player.stop();
     _player.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      // 处于这种状态的应用程序应该假设他们可能在任何时候暂停
+      case AppLifecycleState.inactive:  // 开始对app进行操作（任何操作）
+        // print('inactive');
+        break;
+      case AppLifecycleState.resumed: // 从后台切前台，界面可见
+        // print('resumed');
+        break;
+      case AppLifecycleState.paused: // 界面不可见，后台
+        // print('paused');
+        break;
+      case AppLifecycleState.detached: // APP 结束时调用
+        // print('detached');
+        break;
+    }
   }
 
   @override

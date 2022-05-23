@@ -7,6 +7,7 @@ import '../utils/time_handle.dart';
 
 // 第三方库
 import 'package:just_audio/just_audio.dart';
+import 'package:wakelock/wakelock.dart';
 
 class ZenClock extends StatefulWidget {
   const ZenClock({Key? key}) : super(key: key);
@@ -15,17 +16,21 @@ class ZenClock extends StatefulWidget {
   State<ZenClock> createState() => _ZenClockState();
 }
 
-class _ZenClockState extends State<ZenClock> {
+class _ZenClockState extends State<ZenClock> with WidgetsBindingObserver {
   // 是否计时结束
   late bool _isEndCircle;
   // 是否位于25分钟专注计时
   late bool _isWorking;
+  // 是否停止了计时
+  late bool _isStop;
   // 倒计时时刻
   late Duration _time;
   // 计时间隔
   late Duration _ticker;
   // 计时器
   late Timer _timer;
+  // 变化的按钮图标
+  late Icon _icon;
 
   // 音频播放器
   final _player = AudioPlayer();
@@ -41,13 +46,16 @@ class _ZenClockState extends State<ZenClock> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
 
     // 初始化变量
     _isEndCircle = false;
     _isWorking = true;
+    _isStop = false;
     _time = const Duration(minutes: 25);
     _ticker = const Duration(milliseconds: 1000);
+    _icon = const Icon(Icons.pause_circle_outline, size: 30.0,);
 
     // 开始计时
     _clockBegin();
@@ -80,7 +88,29 @@ class _ZenClockState extends State<ZenClock> {
     _timer.cancel();
     _player.stop();
     _player.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    switch (state) {
+      // 处于这种状态的应用程序应该假设他们可能在任何时候暂停
+      case AppLifecycleState.inactive:  // 开始对app进行操作（任何操作）
+        print('inactive');
+        break;
+      case AppLifecycleState.resumed: // 从后台切前台，界面可见
+        print('resumed');
+        break;
+      case AppLifecycleState.paused: // 界面不可见，后台
+        print('paused');
+        break;
+      case AppLifecycleState.detached: // APP 结束时调用
+        print('detached');
+        break;
+    }
   }
 
 
@@ -91,6 +121,7 @@ class _ZenClockState extends State<ZenClock> {
         title: _isWorking ? const Text('禅模式')
                           : const Text('可以休息啦'),
         automaticallyImplyLeading: false,
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
@@ -152,7 +183,7 @@ class _ZenClockState extends State<ZenClock> {
                   IconButton(
                     onPressed: _stop,
                     icon: _isEndCircle ? const Icon(Icons.stop_circle, size: 30.0,)
-                                       : const Icon(Icons.pause_circle_outline, size: 30.0,)
+                                       : _icon
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 10.0),
@@ -191,6 +222,22 @@ class _ZenClockState extends State<ZenClock> {
       });
       // 重新开始倒计时
       _clockBegin();
+    } else {
+      if(_isStop) {
+        // 重新开始
+        _clockBegin();
+        setState(() {
+          _icon = const Icon(Icons.pause_circle_outline, size: 30.0,);
+        });
+        _isStop = false;
+      } else {
+        // 停止计时
+        _timer.cancel();
+        setState(() {
+          _icon = const Icon(Icons.play_circle_outline, size: 30.0,);
+        });
+        _isStop = true;
+      }
     }
   }
 
