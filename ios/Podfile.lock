@@ -8,6 +8,8 @@ PODS:
     - Flutter
   - shared_preferences_ios (0.0.1):
     - Flutter
+  - wakelock (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
@@ -15,6 +17,7 @@ DEPENDENCIES:
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - wakelock (from `.symlinks/plugins/wakelock/ios`)
 
 EXTERNAL SOURCES:
   audio_session:
@@ -27,6 +30,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_ios/ios"
   shared_preferences_ios:
     :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  wakelock:
+    :path: ".symlinks/plugins/wakelock/ios"
 
 SPEC CHECKSUMS:
   audio_session: 4f3e461722055d21515cf3261b64c973c062f345
@@ -34,6 +39,7 @@ SPEC CHECKSUMS:
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   path_provider_ios: 14f3d2fd28c4fdb42f44e0f751d12861c43cee02
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  wakelock: d0fc7c864128eac40eba1617cb5264d9c940b46f
 
 PODFILE CHECKSUM: b8040acfe5b548a239b0bcc0047ca3c714f22bce
 
